@@ -3,16 +3,30 @@ import { Client } from "@stomp/stompjs";
 class WebSocketService {
   private client: Client;
   private static instance: WebSocketService;
+  private token: string | null = null;
 
   private constructor() {
     this.client = new Client({
-      brokerURL: `ws://${"localhost:3000"}/stomp`,
-      connectHeaders: {
-        login: "user",
-        passcode: "password",
+      // brokerURL: `ws://${"localhost:3000"}/ws`,
+      // connectHeaders: {
+      //   login: "user",
+      //   passcode: "password",
+      // },
+      brokerURL: `wss://idev-portal.bulianx.local/gtw/ply/prtl/ws`,
+      beforeConnect: () => {
+        if (!this.token) {
+          throw new Error("Bearer token not set");
+        }
+        this.client.connectHeaders = {
+          authorization: `Bearer ${this.token}`,
+        };
       },
       debug: (str) => {
-        console.log("STOMP Debug:", str);
+        if (str.includes("heart")) {
+          console.log("%c[Heartbeat]", "color: purple", str);
+        } else {
+          console.log("%c[STOMP Debug]", "color: blue", str);
+        }
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -34,6 +48,12 @@ class WebSocketService {
     this.client.onDisconnect = () => {
       console.log("STOMP Disconnected");
     };
+
+    // this.client.subscribe
+  }
+
+  setToken(token: string) {
+    this.token = token;
   }
 
   public static getInstance(): WebSocketService {
@@ -69,6 +89,7 @@ class WebSocketService {
     if (!this.client.connected) {
       throw new Error("STOMP client is not connected");
     }
+    console.log("Sending message to", destination, body);
     this.client.publish({
       destination,
       body: JSON.stringify(body),

@@ -25,7 +25,7 @@ export class StompServer {
   constructor(server: Server) {
     const wss = new WebSocketServer({
       server,
-      path: "/stomp", // Change from "/ws" to "/stomp"
+      path: "/ws",
     });
 
     wss.on("connection", (ws: WebSocket) => {

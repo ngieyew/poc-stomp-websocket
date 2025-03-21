@@ -12,8 +12,13 @@ export default function Chat() {
     setMessages((prev) => [...prev, message.content]);
   }, []);
 
+  // const { sendMessage, isConnected, error } = useWebSocket(
+  //   "/topic/chat",
+  //   handleMessage
+  // );
+
   const { sendMessage, isConnected, error } = useWebSocket(
-    "/topic/chat",
+    "/prtl/ws/ping",
     handleMessage
   );
 
